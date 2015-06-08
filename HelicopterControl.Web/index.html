@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1; maximum-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <style>
+        div {
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        // Position Variables
+        var x = 0;
+        var y = 0;
+        var z = 0;
+        var throttle = 0;
+        var pitch = 0;
+        var yaw = 0;
+        var yawNeutral = 0;
+        var yawChange = 0;
+        var delay = 100;
+        var delta = 0;
+        var vMultiplier = 0.01;
+        var ws = new WebSocket('ws://bradyp-mac/HelicopterControl/api/values/websocket');
+        var gravity = 9.8;
+
+        ws.onerror = function (error) {
+            console.log(error);
+        };
+
+        ws.onmessage = function (e) {
+            console.log(e.data);
+        };
+
+        ws.onopen = function () {
+            console.log("Connected");
+        };
+
+        window.onload = function () {
+            if (window.DeviceOrientationEvent === typeof 'undefined' || window.DeviceOrientationEvent === null) {
+                document.getElementById("notSupported").style.display = "block";
+                document.getElementById("data").style.display = "none";
+            } else {
+                window.ondeviceorientation = function (event) {
+                    x = event.alpha;
+                    y = event.gamma;
+                    z = event.beta;
+                    if (x == null) {
+                        x = 0;
+                        y = 0;
+                        z = 0;
+                    }
+                }
+                //window.ondevicemotion = function (event) {
+                //    delta = parseFloat(event.accelerationIncludingGravity.z.toFixed(1));
+                //    throttle += delta;
+                //}
+
+                setInterval(function () {
+                    if (z > 50) {
+                        pitch = -1000;
+                    } else if (z < -50) {
+                        pitch = 1000;
+                    } else {
+                        pitch = z * -20;
+                    }
+                    yawChange = yawNeutral - x;
+                    if (yawChange > 80) {
+                        yaw = 1000;
+                    } else if (yawChange < -80) {
+                        yaw = -1000;
+                    } else {
+                        yaw = yawChange * 12.5;
+                    }
+
+                    var data = {
+                        Throttle: throttle,
+                        Pitch: pitch,
+                        Yaw: yaw
+                    };
+                    if (ws.readyState == WebSocket.OPEN) {
+                        ws.send(JSON.stringify(data));
+                    }
+
+                    document.getElementById("x").innerHTML = "x=" + x.toFixed(1);
+                    document.getElementById("y").innerHTML = "y=" + y.toFixed(1);
+                    document.getElementById("z").innerHTML = "z=" + z.toFixed(1);
+
+                    document.getElementById("throttle").innerHTML = "Throttle: " + throttle;
+                    document.getElementById("yaw").innerHTML = "Yaw: " + yaw;
+                    document.getElementById("yawn").innerHTML = "Yaw Neutral: " + yawNeutral;
+                    document.getElementById("yawc").innerHTML = "Yaw Change: " + yawChange;
+                    document.getElementById("pitch").innerHTML = "Pitch: " + pitch;
+
+                    //document.getElementById("motionx").innerHTML = "motionx=" + "";
+                    //document.getElementById("motiony").innerHTML = "motiony=" + "";
+                    document.getElementById("motionz").innerHTML = "motionz=" + delta;
+
+                }, delay);
+            }
+        };
+
+        function changeThrottle(value) {
+            var newthrottle = throttle + value;
+            if (newthrottle > 1000) {
+                throttle = 1000;
+            } else if (newthrottle < 0) {
+                throttle = 0;
+            } else {
+                throttle = newthrottle;
+            }
+        }
+
+        function initialize() {
+            yawNeutral = x;
+        }
+
+    </script>
+</head>
+    <body>
+        <div class="container-fluid">
+            <div class="col-xs-12" id="notSupported" style="display:none;">Your device is not supported</div>
+            <div id="data" class="col-xs-12">
+                <div class="form-group">
+                    <div class="col-xs-12" id="x"></div>
+                    <div class="col-xs-12" id="y"></div>
+                    <div class="col-xs-12" id="z"></div>
+                    <div class="col-xs-12" id="throttle"></div>
+                    <div class="col-xs-12" id="pitch"></div>
+                    <div class="col-xs-12" id="yaw"></div>
+                    <div class="col-xs-12" id="yawn"></div>
+                    <div class="col-xs-12" id="yawc"></div>
+                </div><br/>
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="initialize()">Initialize</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-danger" style="width: 150px;" onclick="changeThrottle(-50)"><span class="glyphicon glyphicon-minus"></span></button>
+                    <button class="btn btn-success" style="width: 150px;" onclick="changeThrottle(50)"><span class="glyphicon glyphicon-plus"></span></button>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-12" id="motionx"></div>
+                    <div class="col-xs-12" id="motiony"></div>
+                    <div class="col-xs-12" id="motionz"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

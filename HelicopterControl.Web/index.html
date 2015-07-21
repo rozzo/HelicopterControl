@@ -2,13 +2,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1; maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1; maximum-scale=1"/>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <style>
         div {
             font-size: 16px;
         }
+        #slider {
+            font-size: 2.5em;
+        }
     </style>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="./Scripts/jquery.ui.touch-punch.min.js"></script>
     <script>
         // Position Variables
         var x = 0;
@@ -22,26 +29,41 @@
         var delay = 100;
         var delta = 0;
         var vMultiplier = 0.01;
-        var ws = new WebSocket('ws://bradyp-mac/HelicopterControl/api/values/websocket');
+        var ws = null;
         var gravity = 9.8;
 
-        ws.onerror = function (error) {
-            console.log(error);
-        };
 
-        ws.onmessage = function (e) {
-            console.log(e.data);
-        };
+        function startWs() {
+            var url = window.location.href.replace ('http:', 'ws:');
+            ws = new WebSocket(url + '/api/values/websocket');
 
-        ws.onopen = function () {
-            console.log("Connected");
-        };
+            ws.onerror = function (error) {
+                console.log(error);
+            };
+            ws.onmessage = function(e) {
+                //console.log (e.data);
+            };
+            ws.onopen = function () {
+                console.log("Connected");
+            };
+            ws.onclose = function() {
+                console.log ("closed");
+            };
+        }
 
-        window.onload = function () {
+        $(function () {
+            $("#slider").slider({
+                max: 1000,
+                step: 50,
+                slide: function (event, ui) {
+                    throttle = ui.value;
+                }
+            });
             if (window.DeviceOrientationEvent === typeof 'undefined' || window.DeviceOrientationEvent === null) {
                 document.getElementById("notSupported").style.display = "block";
                 document.getElementById("data").style.display = "none";
             } else {
+                startWs();
                 window.ondeviceorientation = function (event) {
                     x = event.alpha;
                     y = event.gamma;
@@ -63,8 +85,13 @@
                     } else if (z < -50) {
                         pitch = 1000;
                     } else {
-                        pitch = z * -20;
+                        pitch = z * 10;
+                        if (z > 20)
+                            pitch += 200;
+                        if (z < -20)
+                            pitch -= 200;
                     }
+                    /*
                     yawChange = yawNeutral - x;
                     if (yawChange > 80) {
                         yaw = 1000;
@@ -73,13 +100,15 @@
                     } else {
                         yaw = yawChange * 12.5;
                     }
+                    */
+                    yaw = y * 10;
 
                     var data = {
-                        Throttle: throttle,
-                        Pitch: pitch,
-                        Yaw: yaw
+                        Throttle: throttle | 0,
+                        Pitch: pitch | 0,
+                        Yaw: yaw | 0
                     };
-                    if (ws.readyState == WebSocket.OPEN) {
+                    if (ws.readyState === WebSocket.OPEN) {
                         ws.send(JSON.stringify(data));
                     }
 
@@ -95,56 +124,58 @@
 
                     //document.getElementById("motionx").innerHTML = "motionx=" + "";
                     //document.getElementById("motiony").innerHTML = "motiony=" + "";
-                    document.getElementById("motionz").innerHTML = "motionz=" + delta;
+                    //document.getElementById("motionz").innerHTML = "motionz=" + delta;
 
                 }, delay);
             }
-        };
-
-        function changeThrottle(value) {
-            var newthrottle = throttle + value;
-            if (newthrottle > 1000) {
-                throttle = 1000;
-            } else if (newthrottle < 0) {
-                throttle = 0;
-            } else {
-                throttle = newthrottle;
-            }
-        }
+        });
 
         function initialize() {
             yawNeutral = x;
+            $ ('#started').show();
+        }
+
+        function stop() {
+            throttle = 0;
+            $('#started').hide();
         }
 
     </script>
 </head>
-    <body>
-        <div class="container-fluid">
-            <div class="col-xs-12" id="notSupported" style="display:none;">Your device is not supported</div>
-            <div id="data" class="col-xs-12">
-                <div class="form-group">
+<body>
+    <div class="container-fluid">
+        <div class="col-xs-12" id="notSupported" style="display:none;">Your device is not supported</div>
+        <div id="data" class="col-xs-12">
+            <div class="form-group">
+                <div>
+                    Phone Values
                     <div class="col-xs-12" id="x"></div>
                     <div class="col-xs-12" id="y"></div>
                     <div class="col-xs-12" id="z"></div>
+                </div>
+                <div>
+                    Helicopter Values
                     <div class="col-xs-12" id="throttle"></div>
                     <div class="col-xs-12" id="pitch"></div>
                     <div class="col-xs-12" id="yaw"></div>
                     <div class="col-xs-12" id="yawn"></div>
                     <div class="col-xs-12" id="yawc"></div>
-                </div><br/>
-                <div class="form-group">
-                    <button class="btn btn-primary" onclick="initialize()">Initialize</button>
                 </div>
+            </div><br />
+            <div class="form-group">
+                <button class="btn btn-success" onclick="initialize()">Start</button>
+                <button class="btn btn-danger" onclick="stop()">Stop</button>
+            </div>
+            <div id="started" style="display: none;">
+                <br/>
+                <br/>
+                <br/>
+                <br/>
                 <div class="form-group">
-                    <button class="btn btn-danger" style="width: 150px;" onclick="changeThrottle(-50)"><span class="glyphicon glyphicon-minus"></span></button>
-                    <button class="btn btn-success" style="width: 150px;" onclick="changeThrottle(50)"><span class="glyphicon glyphicon-plus"></span></button>
-                </div>
-                <div class="form-group">
-                    <div class="col-xs-12" id="motionx"></div>
-                    <div class="col-xs-12" id="motiony"></div>
-                    <div class="col-xs-12" id="motionz"></div>
+                    <div id="slider"></div>
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+</body>
 </html>

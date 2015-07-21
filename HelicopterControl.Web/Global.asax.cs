@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using HelicopterControl.Web.Tasks;
+using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Routing;
 
 namespace HelicopterControl.Web
 {
@@ -12,6 +9,12 @@ namespace HelicopterControl.Web
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
+            Task.Run(() => new HelicopterWorker().Run());
+        }
+
+        protected void Application_End()
+        {
+            HelicopterWorker.Stop();
         }
     }
 }

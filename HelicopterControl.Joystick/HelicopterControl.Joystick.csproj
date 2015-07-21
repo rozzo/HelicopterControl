@@ -65,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OmniResources.InfraredControl\InfraredControl.csproj">
-      <Project>{C53150FF-5131-44FB-ACB4-E02ED5288CFE}</Project>
+      <Project>{c53150ff-5131-44fb-acb4-e02ed5288cfe}</Project>
       <Name>InfraredControl</Name>
     </ProjectReference>
   </ItemGroup>

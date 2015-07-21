@@ -43,7 +43,7 @@ namespace OmniResources.InfraredControl
         int PitchTrim { get; set; }
 
         /// <summary>
-        /// Gets or sets the value for yaw (left: 1000, still: 0, right: -10000)
+        /// Gets or sets the value for yaw (left: 1000, still: 0, right: -1000)
         /// </summary>
         int Yaw { get; set; }
 

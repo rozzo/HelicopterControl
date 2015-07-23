@@ -1,5 +1,4 @@
-﻿using System;
-using HelicopterControl.Web.Models;
+﻿using HelicopterControl.Web.Models;
 using OmniResources.InfraredControl;
 using OmniResources.InfraredControl.IguanaIr;
 using OmniResources.InfraredControl.Syma;
@@ -10,26 +9,11 @@ namespace HelicopterControl.Web.Tasks
 {
     public class HelicopterWorker
     {
-        private static bool _processCommands = false;
         private static readonly IguanaIrInterop IrInterop = new IguanaIrInterop();
         private readonly IHelicopterControl _helicopter;
         private const short Speed = 20;
 
-        public static bool ProcessCommands
-        {
-            get
-            {
-                try
-                {
-                    return _processCommands;
-                }
-                catch (TypeInitializationException e)
-                {
-                    _processCommands = false;
-                    return _processCommands;
-                }
-            }
-        }
+        public static bool ProcessCommands { get; private set; }
 
         public HelicopterWorker()
         {
@@ -38,18 +22,18 @@ namespace HelicopterControl.Web.Tasks
 
         public static void Stop()
         {
-            _processCommands = false;
+            ProcessCommands = false;
         }
 
         public void Run()
         {
             Debug.WriteLine("run()");
-            if (!_processCommands)
+            if (!ProcessCommands)
             {
                 Debug.WriteLine("starting worker");
                 Startup();
                 Debug.WriteLine("Processing commands");
-                while (_processCommands)
+                while (ProcessCommands)
                 {
                     SendCommand();
                     Thread.Sleep(Speed);
@@ -61,7 +45,7 @@ namespace HelicopterControl.Web.Tasks
         {
             IrInterop.SetChannels(new byte[] { 1, 3 });
             _helicopter.Command.Channel = HelicopterState.Channel;
-            _processCommands = true;
+            ProcessCommands = true;
         }
 
         public void SendCommand()
@@ -70,8 +54,6 @@ namespace HelicopterControl.Web.Tasks
             _helicopter.Command.Pitch = HelicopterState.Pitch;
             _helicopter.Command.YawTrim = HelicopterState.YawTrim;
             _helicopter.Command.Yaw = -1 * HelicopterState.Yaw + _helicopter.Command.YawTrim;
-
-            //Debug.WriteLine(_helicopter.Command.ToString());
         }
     }
 }

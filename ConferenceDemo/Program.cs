@@ -7,19 +7,24 @@ namespace ConferenceDemo
         {
             var helicopter = new Helicopter(150);
 
-            //userCode(helicopter);
-            demo(helicopter);
+            userCode(helicopter);
+            //demo(helicopter);
         }
 
         private static void userCode(Helicopter helicopter)
         {
             helicopter.TakeOff();
 
-            helicopter.ChangeThrottle(550);
+            helicopter.ChangeThrottle(530);
 
             //put your commands here:
             //type 'helicopter.' and then see the list of commands you can do.
+            helicopter.MoveForward(2000);
+
             helicopter.TurnLeft();
+            helicopter.TurnLeft();
+
+            helicopter.MoveForward(2000);
             
             helicopter.Land();
         }
@@ -36,9 +41,7 @@ namespace ConferenceDemo
             helicopter.MoveForward();
 
             //Move backward - backing up!
-            helicopter.MoveBackward();
-            helicopter.MoveBackward();
-            helicopter.MoveBackward();
+            helicopter.MoveBackward(2000);
 
             //Turn Left - Think about looking out of the helicopter window
             //helicopter.TurnLeft();

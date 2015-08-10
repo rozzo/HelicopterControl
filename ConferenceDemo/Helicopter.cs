@@ -36,7 +36,7 @@ namespace ConferenceDemo
             _helicopter.ChangeThrottle(200);
             Thread.Sleep(2000);
             _helicopter.ChangeThrottle(400);
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
         }
 
         public void Land()
@@ -57,41 +57,41 @@ namespace ConferenceDemo
         {
             Debug.WriteLine("Left");
             _helicopter.Turn(200);
-            sleep();
-            _helicopter.Turn(0);
-            sleep();
+            sleep(1000);
+            _helicopter.Turn(-200);
+            sleep(1000);
         }
 
         public void TurnRight()
         {
             Debug.WriteLine("Right");
             _helicopter.Turn(-200);
-            sleep();
-            _helicopter.Turn(0);
-            sleep();
+            sleep(1000);
+            _helicopter.Turn(200);
+            sleep(1000);
         }
 
-        public void MoveForward()
+        public void MoveForward(int milliseconds = 500)
         {
             Debug.WriteLine("Forward");
-            _helicopter.Command.Pitch = 200;
-            sleep();
+            _helicopter.Command.Pitch = -400;
+            sleep(milliseconds);
             _helicopter.Command.Pitch = 0;
             sleep();
         }
 
-        public void MoveBackward()
+        public void MoveBackward(int milliseconds = 500)
         {
             Debug.WriteLine("Back");
-            _helicopter.Command.Pitch = -300;
-            sleep();
+            _helicopter.Command.Pitch = 400;
+            sleep(milliseconds);
             _helicopter.Command.Pitch = 0;
             sleep();
         }
 
-        private void sleep()
+        private void sleep(int milliseconds = 500)
         {
-            Thread.Sleep(500);
+            Thread.Sleep(milliseconds);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace OmniResources.InfraredControl.Syma
 {
@@ -43,6 +44,8 @@ namespace OmniResources.InfraredControl.Syma
                 }
                 else
                 {
+                    Console.Write(sample.IsPulse ? "Pulse" : "Space");
+                    Console.WriteLine(" width: " + sample.Length);
                     if (sample.IsPulse)
                     {
                         if (!IsCloseTo(sample, 300))

@@ -53,22 +53,22 @@ namespace ConferenceDemo
             }
         }
 
-        public void TurnLeft()
+        public void TurnLeft(int milliseconds = 1000)
         {
             Debug.WriteLine("Left");
             _helicopter.Turn(200);
-            sleep(1000);
+            sleep(milliseconds);
             _helicopter.Turn(-200);
-            sleep(1000);
+            sleep();
         }
 
-        public void TurnRight()
+        public void TurnRight(int milliseconds = 1000)
         {
             Debug.WriteLine("Right");
             _helicopter.Turn(-200);
-            sleep(1000);
+            sleep(milliseconds);
             _helicopter.Turn(200);
-            sleep(1000);
+            sleep();
         }
 
         public void MoveForward(int milliseconds = 500)

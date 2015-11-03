@@ -15,14 +15,13 @@ namespace ConferenceDemo
         {
             helicopter.TakeOff();
 
-            helicopter.ChangeThrottle(530);
+            helicopter.ChangeThrottle(600);
 
             //put your commands here:
             //type 'helicopter.' and then see the list of commands you can do.
             helicopter.MoveForward(2000);
 
-            helicopter.TurnLeft();
-            helicopter.TurnLeft();
+            helicopter.TurnRight();
 
             helicopter.MoveForward(2000);
             

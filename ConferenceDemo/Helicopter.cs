@@ -13,9 +13,15 @@ namespace ConferenceDemo
 
         public Helicopter(int yawTrim = 0)
         {
-            IrInterop.SetChannels(new byte[] { 1, 3 });
+            IrInterop.SetChannels(new byte[] { 1 });
             _helicopter = new HelicopterControl<S107HeliCommand>(IrInterop);
             _helicopter.Command.YawTrim = yawTrim;
+
+            while (!_helicopter.IsEnabled)
+            {
+                sleep();
+            }
+            Debug.WriteLine("Helicopter Online");
         }
 
         public IHeliCommand Command
@@ -32,6 +38,8 @@ namespace ConferenceDemo
 
         public void TakeOff()
         {
+            //_helicopter.ChangeThrottle(50);
+            //Thread.Sleep(1000);
             Debug.WriteLine("Take Off");
             _helicopter.ChangeThrottle(200);
             Thread.Sleep(2000);
@@ -89,7 +97,7 @@ namespace ConferenceDemo
             sleep();
         }
 
-        private void sleep(int milliseconds = 500)
+        public void sleep(int milliseconds = 500)
         {
             Thread.Sleep(milliseconds);
         }

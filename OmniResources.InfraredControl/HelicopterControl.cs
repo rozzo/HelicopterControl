@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OmniResources.InfraredControl
@@ -12,6 +13,7 @@ namespace OmniResources.InfraredControl
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Task _communicatorTask;
         private int _previousMainThrottle;
+        private bool startup;
 
         /// <summary>
         /// Initializes a new instance of the HelicopterControl class
@@ -20,7 +22,8 @@ namespace OmniResources.InfraredControl
         {
             _communicator = communicator;
 
-            IsEnabled = true;
+            IsEnabled = false;
+            startup = true;
 
             Command = new TCommand();
             _previousMainThrottle = Command.MainThrottle;
@@ -41,15 +44,34 @@ namespace OmniResources.InfraredControl
                         else if (Command.MainThrottle == 0 && _previousMainThrottle > 0)
                         {
                             //send a blank command to clear the copter
+                            Debug.WriteLine("Clearing throttle");
                             _previousMainThrottle = Command.MainThrottle;
                             Command.Pitch = Command.PitchNeutral;
                             Command.Yaw = Command.YawNeutral;
+                            
+                            for(int i=0; i<5; i++){
+                                var pulses = Command.GetPulses();
+                                _communicator.WriteData(pulses);
+                                Thread.Sleep(10);
+                            }
+                        }
+                    }
+                    else if (startup)
+                    {
+                        Debug.WriteLine("Helicopter Startup - Initializing Communication");
+                        _previousMainThrottle = Command.MainThrottle;
+                        Command.Pitch = Command.PitchNeutral;
+                        Command.Yaw = Command.YawNeutral;
 
+                        for (int i = 0; i < 5; i++)
+                        {
                             var pulses = Command.GetPulses();
                             _communicator.WriteData(pulses);
-                            _previousMainThrottle = Command.MainThrottle;
                             Thread.Sleep(10);
                         }
+
+                        startup = false;
+                        IsEnabled = true;
                     }
                     else
                     {

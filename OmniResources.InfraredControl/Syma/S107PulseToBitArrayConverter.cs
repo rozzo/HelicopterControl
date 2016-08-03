@@ -17,12 +17,19 @@ namespace OmniResources.InfraredControl.Syma
         //private const uint HeaderPulseWidth = 1920;
         //private const uint OnPulse = 618;
         //private const uint OffPulse = 234;
+
         //http://www.kerrywong.com/2012/08/27/reverse-engineering-the-syma-s107g-ir-protocol/
+        //private const uint PulseWidth = 380;
+        //private const uint HeaderPulseDuration = 2040;
+        //private const uint HeaderPulseWidth = 2000;
+        //private const uint OnPulseDuration = 600;
+        //private const uint OffPulseDuration = 220;
+
         private const uint PulseWidth = 380;
-        private const uint HeaderPulseDuration = 2040;
+        private const uint HeaderPulseDuration = 2000;
         private const uint HeaderPulseWidth = 2000;
         private const uint OnPulseDuration = 600;
-        private const uint OffPulseDuration = 220;
+        private const uint OffPulseDuration = 300;
 
         /// <summary>
         /// Converts pulses to binary data
@@ -44,8 +51,8 @@ namespace OmniResources.InfraredControl.Syma
                 }
                 else
                 {
-                    Console.Write(sample.IsPulse ? "Pulse" : "Space");
-                    Console.WriteLine(" width: " + sample.Length);
+                    //Console.Write(sample.IsPulse ? "Pulse" : "Space");
+                    //Console.WriteLine(" width: " + sample.Length);
                     if (sample.IsPulse)
                     {
                         if (!IsCloseTo(sample, 300))
